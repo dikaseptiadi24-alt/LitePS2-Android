@@ -32,12 +32,11 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Android build tools
         run: |
-          sdkmanager "platform-tools" "platforms;android-37" "build-tools;37.0.0" "ndk;29.0.14206865" "cmake;3.31.6"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-37" "build-tools;37.0.0" "ndk;29.0.14206865" "cmake;3.31.6"
 
       - name: Prepare ARMSX2 dependencies
         working-directory: Ametrine
@@ -48,8 +47,6 @@ jobs:
 
       - name: Build debug APK
         working-directory: Ametrine
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon :app:assembleDebug
