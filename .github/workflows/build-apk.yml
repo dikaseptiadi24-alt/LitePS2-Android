@@ -1,0 +1,63 @@
+name: Build LitePS2 APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      - name: Checkout Ametrine source and ARMSX2 submodule
+        uses: actions/checkout@v4
+        with:
+          repository: kiraponz/Ametrine
+          ref: main
+          path: Ametrine
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build tools
+        run: |
+          sdkmanager "platform-tools" "platforms;android-37" "build-tools;37.0.0" "ndk;29.0.14206865" "cmake;3.31.6"
+
+      - name: Prepare ARMSX2 dependencies
+        working-directory: Ametrine
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 git
+          bash scripts/setup-armsx2.sh
+
+      - name: Build debug APK
+        working-directory: Ametrine
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LitePS2-debug-APK
+          path: Ametrine/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
