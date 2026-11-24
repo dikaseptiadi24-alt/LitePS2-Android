@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-37" "build-tools;37.0.0" "ndk;29.0.14206865" "cmake;3.31.6"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --channel=3 "platform-tools" "platforms;android-37" "build-tools;37.0.0" "ndk;29.0.14206865" "cmake;3.31.6"
 
       - name: Prepare ARMSX2 dependencies
         working-directory: Ametrine
